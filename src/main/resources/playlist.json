@@ -1,0 +1,38 @@
+{
+  "playlistName": "드라이브할 때 듣기 좋은 노래",
+  "createdAt": "2025-08-25",
+  "songs": [
+    {
+      "title": "Dynamite",
+      "artist": "BTS",
+      "album": "BE",
+      "duration": 199
+    },
+    {
+      "title": "As It Was",
+      "artist": "Harry Styles",
+      "album": "Harry's House",
+      "duration": 167
+    },
+    {
+      "title": "한 페이지가 될 수 있게",
+      "artist": "DAY6",
+      "album": "The Book of Us",
+      "duration": 230
+    },
+    {
+      "title": "Good 4 U",
+      "artist": "Olivia Rodrigo",
+      "album": "SOUR",
+      "duration": 178
+    },
+    { "title": "Shape of You",
+      "artist": "Ed Sheeran",
+      "album": "Divide",
+      "duration": 233
+    }
+  ],
+  "totalSongs": 5,
+  "totalDuration": 1007
+}
+
