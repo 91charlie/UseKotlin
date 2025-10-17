@@ -1,188 +1,151 @@
-package org.example
-import kotlin.reflect.*
-import netscape.javascript.JSObject
 import java.io.File
-import java.lang.StringBuilder
-import java.util.*
-import kotlin.reflect.KClass
-import kotlin.reflect.KProperty0
-import kotlin.reflect.full.memberProperties
-import kotlin.text.iterator
-import kotlin.reflect.KMutableProperty
-import kotlin.reflect.KProperty
-import kotlin.reflect.full.primaryConstructor
-
-
-//import kotlinx.serialization.*
-//import kotlinx.serialization.json.*
-//import kotlinx.serialization.descriptors.*
-//import kotlinx.serialization.encoding.*
-
-
-//@Serializable
-data class Playlist(
-    var playlistName: String = "",
-    var createdAt: String = "",
-    var totalSongs: Int = 0,
-    var totalDuration: Int = 0,
-    var songs: MutableList<Song> = mutableListOf()
-){
-}
-
 data class Song(
-    var title: String = "",
-    var artist: String = "",
-    var album: String = "",
+    var title: String = "null",
+    var artist: String = "null" ,
+    var album: String = "null" ,
     var duration: Int = 0
 )
 
-enum class Lexer()
-{
-    key,
-    value,
-    kvseperator,
-    comma,
-    midBoxOpen,
-    midBoxClose,
-    listBoxOpen,
-    listBoxClose
-}
+data class Playlist(
+    var playlistName: String = "null",
+    var createdAt: String = "null",
+    var songs: MutableList<Song> = mutableListOf(),
+    var totalSongs: Int = 0,
+    var totalDuration: Int = 0
+)
 
-fun String.jsonToker(): List<String>
-{
-    var isOpen: Boolean = false
+enum class L3xer() {
+    k3y,
+    valu3,
+    KeyValueSeperator,
+    c0mma,
+    OMidBracket,
+    CMidBracket,
+    OListBracket,
+    CListBracket
+}
+fun tokenizer(file: String): MutableList<String>{
+    val tokenList: MutableList<String> = mutableListOf()
     var letters: String = ""
-    val result: MutableList<String> = mutableListOf()
-
-    for(letter in this)
+    var letterOpen: Boolean = false
+    for(L in file)
     {
-        if(letter == '{'|| letter == '[' || letter == ']'){
-            result.add(letter.toString())
-        }
-        else if(letter == '"') {
-            isOpen = !isOpen
-            letters += letter
-        }
-        else if(letter == ':' || letter == ',' || letter == '}')
+        if(L == '{'||L == '['||L == ']')
         {
-            if(!letters.isEmpty()){
-                result.add(letters)
+            tokenList.add(L.toString())
+        }
+        else if(L == '"')
+        {
+            letters += L
+            letterOpen = !letterOpen
+        }
+        else if(L == ':' || L == ',')
+        {
+            if(letters != "") {
+                tokenList.add(letters)
             }
+            tokenList.add(L.toString())
+            letters =  ""
+        }
+        else if(L == '}')
+        {
+            tokenList.add(letters)
+            tokenList.add(L.toString())
             letters = ""
-            result.add(letter.toString())
         }
-        else if(letter == ' ')
+        else if(L == '\n' || L == '\r'|| L == ' ')
         {
-            if(isOpen) {
-                letters += letter
-            }
-        }
-        else if(letter == '\r' || letter == '\n')
-        {
-            continue
-        }
-        else
-        {
-            letters += letter
-        }
-    }
-    return result
-}
-fun JsonLexer(tokenedFile: List<String>) : MutableList<Lexer>
-{
-    val fileResult = tokenedFile.reversed()
-    val lexerlist: MutableList<Lexer> = mutableListOf()
-    var read: Boolean = false
-    for(i in fileResult)
-    {
-
-        if(i == "{")
-        {
-            lexerlist.add(Lexer.midBoxOpen)
-        }
-        else if(i == ":")
-        {
-            lexerlist.add(Lexer.kvseperator)
-            read = true
-        }
-        else if(i == "}")
-        {
-            lexerlist.add(Lexer.midBoxClose)
-        }
-        else if(i == "[")
-        {
-            lexerlist.add(Lexer.listBoxOpen)
-        }
-        else if(i == "]")
-        {
-            lexerlist.add(Lexer.listBoxClose)
-        }
-        else if(i == ",")
-        {
-            lexerlist.add(Lexer.comma)
-        }
-        else
-        {
-            if(!read)
+            if(letterOpen && L == ' ')
             {
-                lexerlist.add(Lexer.value)
+                letters += L
             }
             else
             {
-                lexerlist.add(Lexer.key)
-                read = false
+            continue
+            }
+        }
+        else
+        {
+            letters += L
+        }
+    }
+    return tokenList
+}
+fun l3xer(tokened: MutableList<String>): MutableList<L3xer> {
+    val reversedList = tokened.reversed()
+    val l3xerList: MutableList<L3xer> = mutableListOf()
+    var keyOrValue: Boolean = false
+    for(token in reversedList)
+    {
+        if(token == "{")
+        {
+            l3xerList.add(L3xer.OMidBracket)
+        }
+        else if(token == "}")
+        {
+            l3xerList.add(L3xer.CMidBracket)
+        }
+        else if(token == ":")
+        {
+            l3xerList.add(L3xer.KeyValueSeperator)
+            keyOrValue = true
+        }
+        else if(token == ",")
+        {
+            l3xerList.add(L3xer.c0mma)
+        }
+        else if(token == "[")
+        {
+            l3xerList.add(L3xer.OListBracket)
+        }
+        else if(token == "]")
+        {
+            l3xerList.add(L3xer.CListBracket)
+        }
+        else{
+            if(keyOrValue)
+            {
+                l3xerList.add(L3xer.k3y)
+                keyOrValue = false
+            }
+            else{
+                l3xerList.add(L3xer.valu3)
+            }
+
+        }
+    }
+    val result = l3xerList.reversed().toMutableList()
+    return result
+}
+class Parserr() {
+    fun pars3r(tokened: MutableList<String>, lexed: MutableList<L3xer>) {
+        for (data in lexed.indices) {
+            when (lexed[data]) {
+                L3xer.k3y -> TODO()
+                L3xer.valu3 -> TODO()
+                L3xer.KeyValueSeperator -> TODO()
+                L3xer.c0mma -> TODO()
+                L3xer.OMidBracket -> TODO()
+                L3xer.CMidBracket -> TODO()
+                L3xer.OListBracket -> TODO()
+                L3xer.CListBracket -> TODO()
             }
         }
     }
-    return lexerlist.reversed().toMutableList()
+}
+fun main()
+{
+    val file = File("./src/main/resources/playlist.json").readText()
+    val a = tokenizer(file)
+    val b = l3xer(a)
 }
 
+// 파서 만들기
+// 반복문으로 토크나이저와 렉서를 읽는다 .indices 사용
+// 렉서 key 가 나올 경우 key 이름 저장 추후 setter의 경로가 된다
+// 렉서 value 가 나올 경우 키 이름 setter를 사용해서 값을 할당한다.
 
-fun main() {
-    val file = File("./src/main/resources/playlist.json") // 현재 디렉토리
+// song 과 playlist를 구분해야 하기 때문에 fun song을 따로 만든다
 
-    val fileResult = file.readText().jsonToker()
-    val lexerlist: MutableList<Lexer> = JsonLexer(fileResult)
-    var playlist = Playlist()
-    var song = Song()
-    val songMirror = song::class.memberProperties.map { it.name }
-    val playlistMirror = playlist::class
-
-    val a1= Song::title.set(song,fileResult[15])
-    println(songMirror)
-    println(song.title)
-
-
-    for(i in 0 until lexerlist.size)
-    {
-       var count: Int = 0
-        var SongOrPlayList: Boolean = false
-        var keyName: String = ""
-
-       when(lexerlist[i])
-       {
-            Lexer.key -> keyName = fileResult[count]
-            Lexer.value -> TODO()// 분기에 따른 Song or playList :: 키 이름. set(인스턴스, fileResult[count]) value 삽입
-            Lexer.kvseperator -> TODO()
-            Lexer.comma -> TODO()//playlist.songs.add(song)
-            Lexer.midBoxOpen -> TODO()// song 초기화
-            Lexer.midBoxClose -> TODO()
-            Lexer.listBoxOpen -> TODO()// 분기 결정
-            Lexer.listBoxClose ->TODO()// 분기 결정
-       }
-        count++
-   }
-    println("${fileResult.size},${lexerlist.size}")
-
-
-}
-// 리플렉션, 코드 복기, enum 클래스
-// 렉서가 의미와 값을 모두 가지고 있어야한다.
-// 파서의 결과 - AST abstract syntax tree
-// 멤버 프로퍼티로 리스트 만들기 또는 키와 일치하는 이름으로 접근하여 밸류 삽입하기
-
-
-
-// { == 클래스 결정
-// key == 프로퍼티 결정
-// value 클래스.프로퍼티 값 할당
+// 또는 key value를 종합한뒤 따로 할당하는 함수를 만든다.
+// playlist에 포함하는지 검사한뒤 없으면 전부 song으로 만든다
